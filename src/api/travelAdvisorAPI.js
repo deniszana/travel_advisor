@@ -1,94 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { CssBaseline, Grid } from '@material-ui/core';
+/* eslint-disable consistent-return */
+import axios from 'axios';
 
-import { getPlacesData, getWeatherData } from './api/travelAdvisorAPI';
-import Header from './components/Header/Header';
-import List from './components/List/List';
-import Map from './components/Map/Map';
-
-const App = () => {
-  const [type, setType] = useState('restaurants');
-  const [rating, setRating] = useState('');
-
-  const [coords, setCoords] = useState({});
-  const [bounds, setBounds] = useState(null);
-
-  const [weatherData, setWeatherData] = useState([]);
-  const [filteredPlaces, setFilteredPlaces] = useState([]);
-  const [places, setPlaces] = useState([]);
-
-  const [autocomplete, setAutocomplete] = useState(null);
-  const [childClicked, setChildClicked] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(({ coords: { latitude, longitude } }) => {
-      setCoords({ lat: latitude, lng: longitude });
+export const getPlacesData = async (type, sw, ne) => {
+  try {
+    const { data: { data } } = await axios.get(`https://travel-advisor.p.rapidapi.com/${type}/list-in-boundary`, {
+      params: {
+        bl_latitude: sw.lat,
+        bl_longitude: sw.lng,
+        tr_longitude: ne.lng,
+        tr_latitude: ne.lat,
+      },
+      headers: {
+        'x-rapidapi-key': process.env.REACT_APP_RAPID_API_TRAVEL_API_KEY,
+        'x-rapidapi-host': 'travel-advisor.p.rapidapi.com',
+      },
     });
-  }, []);
 
-  useEffect(() => {
-    const filtered = places.filter((place) => Number(place.rating) > rating);
-
-    setFilteredPlaces(filtered);
-  }, [rating]);
-
-  useEffect(() => {
-    if (bounds) {
-      console.log(bounds);
-      setIsLoading(true);
-
-      getWeatherData(coords.lat, coords.lng)
-        .then((data) => setWeatherData(data));
-
-      getPlacesData(type, bounds.sw, bounds.ne)
-        .then((data) => {
-          setPlaces(data.filter((place) => place.name && place.num_reviews > 0));
-          setFilteredPlaces([]);
-          setRating('');
-          setIsLoading(false);
-        });
-    }
-  }, [bounds, type]);
-
-  const onLoad = (autoC) => setAutocomplete(autoC);
-
-  const onPlaceChanged = () => {
-    const lat = autocomplete.getPlace().geometry.location.lat();
-    const lng = autocomplete.getPlace().geometry.location.lng();
-
-    setCoords({ lat, lng });
-  };
-
-  return (
-    <>
-      <CssBaseline />
-      <Header onPlaceChanged={onPlaceChanged} onLoad={onLoad} />
-      <Grid container spacing={3} style={{ width: '100%' }}>
-        <Grid item xs={12} md={4}>
-          <List
-            isLoading={isLoading}
-            childClicked={childClicked}
-            places={filteredPlaces.length ? filteredPlaces : places}
-            type={type}
-            setType={setType}
-            rating={rating}
-            setRating={setRating}
-          />
-        </Grid>
-        <Grid item xs={12} md={8} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <Map
-            setChildClicked={setChildClicked}
-            setBounds={setBounds}
-            setCoords={setCoords}
-            coords={coords}
-            places={filteredPlaces.length ? filteredPlaces : places}
-            weatherData={weatherData}
-          />
-        </Grid>
-      </Grid>
-    </>
-  );
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
-export default App;
+export const getWeatherData = async (lat, lng) => {
+  try {
+    if (lat && lng) {
+      const { data } = await axios.get('https://community-open-weather-map.p.rapidapi.com/find', {
+        params: { lat, lon: lng },
+        headers: {
+          'x-rapidapi-key': process.env.REACT_APP_RAPID_API_WEATHER_API_KEY,
+          'x-rapidapi-host': 'community-open-weather-map.p.rapidapi.com',
+        },
+      });
+
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
