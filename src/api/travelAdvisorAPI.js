@@ -10,7 +10,7 @@ export const getPlacesData = async (type, sw, ne) => {
   //     params: { lang: 'fr', show: 'webcams:image,location' },
   //     headers: {
   //       'x-rapidapi-host': 'webcamstravel.p.rapidapi.com',
-  //       'x-rapidapi-key': '56de950e1bmsh5678e173d1cdb2ap1a6b03jsn6e98bc973a51',
+  //       'x-rapidapi-key': process.env.REACT_APP_RAPID_API_TRAVEL_API_KEY,
   //     },
   //   };
   //   await axios.request(options).then((response) => {
