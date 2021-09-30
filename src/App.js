@@ -37,7 +37,7 @@ const App = () => {
 
   useEffect(() => {
     if (bounds) {
-      console.log(bounds);
+      // console.log(bounds);
       setIsLoading(true);
 
       getWeatherData(coords.lat, coords.lng)
@@ -66,7 +66,7 @@ const App = () => {
         getWebCamData(bounds.sw, bounds.ne)
           .then((data) => {
             // console.log(data.result.webcams);
-            console.log(data);
+            // console.log(data);
             setWebcams(data.result.webcams);
             setPlaces([]);
             // setPlaces(data.filter((place) => place.name && place.num_reviews > 0));
